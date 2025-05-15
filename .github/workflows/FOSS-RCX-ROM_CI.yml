@@ -1,0 +1,44 @@
+name: FOSS-RCX-ROM CI
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Following POSIX cron syntax, run every Monday morning at 5:30 AM UTC
+    #   https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
+    - cron:   '30 5 * * 1'
+  push:
+    # branches: [ master ]
+  pull_request:
+    # branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+
+    steps:
+    - name: Checkout BrickEmu
+      uses: actions/checkout@v4
+    - name: apt-get update
+      run: sudo apt-get --assume-yes update
+    - name: Install build dependencies
+      run: sudo apt-get --assume-yes install binutils-h8300-hms
+    - name: Build ROM
+      run: |
+        make
+    - name: Archive the Build Outputs
+      uses: actions/upload-artifact@v4
+      with:
+        name: foss-rcx-rom_[runner~${{ matrix.os }}]_run${{ github.run_id }}.${{ github.run_number }}.${{ github.run_attempt }}
+        path: |
+          build/*
+    - name: Test Install the Build
+      run: |
+        make install
+    - name: Test Stow the Build
+      run: |
+        sudo make stow
