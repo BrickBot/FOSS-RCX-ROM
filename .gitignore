@@ -1,5 +1,8 @@
 # Build Folder
 build/
+*.coff
+*.srec
+*.bin
 
 # Prerequisites
 *.d

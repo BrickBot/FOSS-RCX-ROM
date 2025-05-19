@@ -1,3 +1,9 @@
+## ======================================================================================================== ##
+## IMPORTANT NOTE: This Makefile setup is designed to work both standalone and integrated with brickOS-bibo ##
+##   - Makefile:     For building stand-alone                                                               ##
+##   - Makefile.sub: For building as part of brickOS-bibo                                                   ##
+## ======================================================================================================== ##
+
 # Development Packages:
 # * Required: h8300 binutils
 
@@ -15,14 +21,7 @@ CROSSAS ?= $(CROSSTOOLPREFIX)as$(CROSSTOOLSUFFIX)
 CROSSLD ?= $(CROSSTOOLPREFIX)ld$(CROSSTOOLSUFFIX)
 CROSSOBJCOPY ?= $(CROSSTOOLPREFIX)objcopy$(CROSSTOOLSUFFIX)
 
-SRC_DIR = src
-BUILD_DIR ?= build
-OBJ_DIR = $(BUILD_DIR)
-
-BASENAME = foss-rom
-OUTPUT_TYPES ?= coff bin srec ld
-OUTPUT_FILES = $(OUTPUT_TYPES:%=$(BASENAME).%)
-OUTPUT_FILE_PATHS = $(OUTPUT_FILES:%=$(BUILD_DIR)/%)
+ROM_BASESUBDIR = .
 
 # Installation Path Configuration
 DESTDIR ?=
@@ -30,36 +29,24 @@ prefix ?= /opt/stow/foss-rcx-rom
 pkgtargetkerneldir ?= ${prefix}/${TARGET_ARCH}/boot
 
 
-all: $(OUTPUT_FILE_PATHS)
+all: rom
 
-clean:
-	rm -f -r $(BUILD_DIR)
+clean: rom-clean
 
-realclean: clean
+realclean: rom-realclean
 
-install: $(OUTPUT_FILE_PATHS)
-	test -d $(DESTDIR)$(pkgtargetkerneldir) || mkdir -p $(DESTDIR)$(pkgtargetkerneldir)
-	install -v --mode=644 $(OUTPUT_FILE_PATHS) "$(DESTDIR)$(pkgtargetkerneldir)"
+install: rom-install
 
-uninstall:
-	cd "$(DESTDIR)$(pkgtargetkerneldir) && rm -f $(OUTPUT_FILES)
+uninstall: rom-uninstall
 
 
-$(BUILD_DIR)/%.ld: $(SRC_DIR)/%.ld
-	test -d $(BUILD_DIR) || mkdir -p $(BUILD_DIR)
-	test -d $(OBJ_DIR) || mkdir -p $(OBJ_DIR)
-	cp $< $@
+include $(MAKEFILE_DIR)/Makefile.sub
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.s $(SRC_DIR)/%-lcd.s  $(BUILD_DIR)/%.ld
-	$(CROSSAS) -I $(SRC_DIR) -o $@ $<
 
-$(BUILD_DIR)/%.coff: $(OBJ_DIR)/%.o $(SRC_DIR)/%.ld
-	$(CROSSLD) -T $(word 2,$^) -relax -nostdlib $< -o $@
-
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.coff
+$(ROM_FILES_BASE).bin: $(ROM_FILES_BASE).coff
 	$(CROSSOBJCOPY) -I coff-h8300 -O binary $< $@
 
-$(BUILD_DIR)/%.srec: $(BUILD_DIR)/%.coff
+$(ROM_FILES_BASE).srec: $(ROM_FILES_BASE).coff
 	$(CROSSOBJCOPY) -I coff-h8300 -O srec $< $@
 
 
