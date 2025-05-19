@@ -35,7 +35,10 @@ jobs:
       with:
         name: foss-rcx-rom_[runner~${{ matrix.os }}]_run${{ github.run_id }}.${{ github.run_number }}.${{ github.run_attempt }}
         path: |
-          build/*
+          *.coff
+          *.bin
+          *.srec
+          *.ld
     - name: Test Install the Build
       run: |
         make install
