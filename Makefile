@@ -1,8 +1,9 @@
-## ======================================================================================================== ##
-## IMPORTANT NOTE: This Makefile setup is designed to work both standalone and integrated with brickOS-bibo ##
-##   - Makefile:     For building stand-alone                                                               ##
-##   - Makefile.sub: For building as part of brickOS-bibo                                                   ##
-## ======================================================================================================== ##
+## ========================================================================================================
+## IMPORTANT NOTE: This Makefile setup is designed to work both standalone and integrated with brickOS-bibo
+##   - Makefile:     For building stand-alone, effectively providing what would provided by Makefle
+##                     or Makefile.common from brickOS-bibo
+##   - Makefile.sub: Facilitates building as part of brickOS-bibo
+## ========================================================================================================
 
 # Development Packages:
 # * Required: h8300 binutils
